@@ -12,6 +12,7 @@ using Sce.Atf.Adaptation;
 
 using LevelEditorCore;
 using System.Diagnostics;
+using System.Threading;
 
 namespace LevelEditor
 {
@@ -48,7 +49,25 @@ namespace LevelEditor
             {                
                 Update();
                 Render();                
+
+                PostIdleThrottle();
             }
+        }
+
+        [System.Security.SuppressUnmanagedCodeSecurity]
+        [DllImport("Winmm.dll", CharSet = CharSet.Unicode)]
+        private static extern uint timeBeginPeriod(uint period);
+
+        [System.Security.SuppressUnmanagedCodeSecurity]
+        [DllImport("Winmm.dll", CharSet = CharSet.Unicode)]
+        private static extern uint timeEndPeriod(uint period);
+
+        private void PostIdleThrottle()
+        {
+            // try to sleep for a millisecond after each idle update
+            timeBeginPeriod(1);
+            Thread.Sleep(1);
+            timeEndPeriod(1);
         }
 
         private bool IsIdle()
